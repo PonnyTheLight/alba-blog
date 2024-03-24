@@ -1,0 +1,121 @@
+---
+import { Image } from "astro:assets";
+import prisma from "@main/prismaa";
+
+console.log(Astro.cookies.has("User"));
+interface User {
+    username: string;
+    email: string;
+    img: string;
+}
+
+var User = {} as User;
+if (Astro.cookies.get("User")) {
+    const res = Astro.cookies.get("User").value;
+    User = JSON.parse(res);
+
+    console.log(User.username);
+}
+
+const useremail = await prisma.user.findFirst({ where: { email: User.email } });
+const img = useremail.img;
+---
+
+<div>
+    <nav class="shadow-md dark:bg-gray-900 z-50">
+        <div
+            class="max-w-screen-xl h-full flex flex-wrap items-center justify-between mx-auto p-4"
+        >
+            <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+                <span
+                    class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
+                    >Alba Blog</span
+                >
+            </a>
+
+            <div class="md:block w-auto" id="navbar-default">
+                {
+                    User.email ? (
+                        <button open-sidebar-btn>
+                            <Image
+                                class="w-10 h-10 rounded ring-2 ring-gray-300 dark:ring-gray-500"
+                                width="50"
+                                height="50"
+                                src={
+                                    img
+                                        ? img
+                                        : "/img/testImages/defaultProfile.jpeg"
+                                }
+                                alt="Default avatar"
+                            />
+                        </button>
+                    ) : (
+                        <>
+                            <a
+                                href="/sesion/login/"
+                                class="p-2 px-4 rounded-md mx-2 text-center"
+                            >
+                                Login
+                            </a>
+                            <a
+                                href="/sesion/register/"
+                                class="bg-blue-500 p-2 px-4 rounded-md text-center"
+                            >
+                                Register
+                            </a>
+                        </>
+                    )
+                }
+            </div>
+        </div>
+    </nav>
+
+    <!-- PONER -20% al terminar la Sidebar en left[0] => left-[-20%] -->
+    <div
+        id="Sidebar"
+        class="absolute left-[-20rem] top-0 bottom-0 p-2 w-[18rem] overflow-y-auto text-center bg-white shadow-lg dark:bg-gray-900"
+    >
+        <div class="flex justify-end">
+            <button open-sidebar-btn class="text-md p-2">X</button>
+        </div>
+        <div class="flex justify-center my-4">
+            <Image
+                class="w-30 h-30 rounded ring-2 ring-gray-300 dark:ring-gray-500"
+                width="200"
+                height="200"
+                src={img ? img : "/img/testImages/defaultProfile.jpeg"}
+                alt="Default avatar"
+            />
+        </div>
+
+        <h1 class="text-xl">{User.username ? User.username : ""}</h1>
+        <p class="text-md mb-3">{User.email ? User.email : ""}</p>
+
+        <a
+            href="/sesion/logout/"
+            class="text-blue-500 hover:border-b hover:border-blue-500"
+            >Cerrar Sesión</a
+        >
+    </div>
+</div>
+
+<script>
+    const buttons = document.querySelectorAll("[open-sidebar-btn]");
+    const sidebar = document.getElementById("Sidebar");
+
+    const amount = "20rem";
+    var open = false;
+    buttons.forEach((a) => {
+        a.addEventListener("click", () => {
+            if (!open) {
+                sidebar.style.transition = "transform 0.3s linear 0s";
+                sidebar.style.transform = "translateX(" + amount + ")";
+                open = true;
+            } else {
+                sidebar.style.transition = "transform 0.5s linear 0s";
+                sidebar.style.transform = "translateX(-" + amount + ")";
+                open = false;
+            }
+        });
+    });
+</script>

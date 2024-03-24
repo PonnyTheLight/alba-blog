@@ -1,0 +1,138 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import prisma from "../../../../prismaa";
+
+var usernameexists = false;
+var emailexists = false;
+var passwrong = false;
+var data = new FormData() as FormData;
+
+if (Astro.request.method === "POST") {
+    try {
+        data = await Astro.request.formData();
+        const name = data.get("username") as string;
+        const password = data.get("password") as string;
+
+        if (await prisma.user.findFirst({ where: { username: name } })) {
+            const usernamee = await prisma.user.findFirst({
+                where: { username: name },
+            });
+
+            if (usernamee?.pass == password) {
+                Astro.cookies.set(
+                    "User",
+                    {
+                        username: usernamee?.username,
+                        email: usernamee.email,
+                    },
+                    {
+                        path: "/",
+                    },
+                );
+
+                return Astro.redirect("/");
+            } else {
+                passwrong = true;
+            }
+        } else if (await prisma.user.findFirst({ where: { email: name } })) {
+            const useremail = await prisma.user.findFirst({
+                where: { email: name },
+            });
+
+            if (useremail?.pass == password) {
+                Astro.cookies.set(
+                    "User",
+                    {
+                        username: useremail?.username,
+                        email: useremail?.email,
+                    },
+                    {
+                        path: "/",
+                    },
+                );
+
+                return Astro.redirect("/");
+            } else {
+                passwrong = true;
+            }
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            console.error(error.message);
+        }
+    }
+}
+---
+
+<Layout title="Alba Blog | Register">
+    <div class="h-screen">
+        <h1 class="text-center text-2xl font-semibold mt-10">
+            ¿Quieres Iniciar Sesión?
+        </h1>
+        <form method="POST">
+            <div class="w-full md:w-1/2 p-2 mx-auto">
+                <div class="p-4 w-full">
+                    <div class="mb-6">
+                        <label
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            for="username">Nombre de Usuario o Email:</label
+                        >
+                        <input
+                            type="text"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Escribe tu nombre de usuario o email."
+                            id="username"
+                            name="username"
+                            value={(data.get("username") as string)
+                                ? (data.get("username") as string)
+                                : ""}
+                            required
+                        />
+                        {
+                            usernameexists ? (
+                                <p class="text-red-500">
+                                    Este nombre de usuario ya existe. Prueba con
+                                    otro.
+                                </p>
+                            ) : (
+                                ""
+                            )
+                        }
+                    </div>
+
+                    <div class="mb-6">
+                        <label
+                            for="password "
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            >Contraseña:</label
+                        >
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="•••••••••"
+                            value={(data.get("password") as string)
+                                ? (data.get("password") as string)
+                                : ""}
+                            required
+                        />
+                        {
+                            passwrong ? (
+                                <p class="text-red-500">
+                                    La contraseña no es correcta, prueba otra o
+                                    restablecela ahora.
+                                </p>
+                            ) : (
+                                ""
+                            )
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center">
+                <input type="submit" class="bg-blue-500 p-2 rounded-md px-4" />
+            </div>
+        </form>
+    </div>
+</Layout>

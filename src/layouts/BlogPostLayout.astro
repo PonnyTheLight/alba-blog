@@ -1,0 +1,42 @@
+---
+const { frontmatter } = Astro.props;
+import { Image } from "astro:assets";
+---
+
+<html>
+    <div class="p-4">
+        <div class="flex justify-center mb-3 items-center">
+            <Image
+                class="rounded-lg w-50"
+                src={frontmatter
+                    ? frontmatter.tumble
+                        ? frontmatter.tumble
+                        : "/img/testImages/testPost.jpeg"
+                    : "/img/testImages/testPost.jpeg"}
+                width="512"
+                height="512"
+                alt="TumblePost"
+            />
+
+            <div class="p-4">
+                <h1 class="text-2xl mb-1">
+                    {frontmatter ? frontmatter.title : "Not title found"}
+                </h1>
+                <p>
+                    {frontmatter ? frontmatter.sdesc : "Description not found"}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex justify-center">
+            <div class="mt-10 text-lg w-[80%]">
+                <!-- <h1>{post ? post.content : "Content not found"}</h1> -->
+                <h1 class="mb-5">
+                    <slot />
+                </h1>
+            </div>
+        </div>
+    </div>
+
+
+</html>

@@ -1,0 +1,14 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+try {
+    const res = Astro.cookies.delete("User", {
+        path: "/",
+    });
+
+    return Astro.redirect("/");
+} catch (err) {
+    if (err instanceof Error) {
+        console.log(err.message);
+    }
+}
+---
